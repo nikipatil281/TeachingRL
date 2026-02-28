@@ -5,7 +5,21 @@ import { ChevronRight, Target, AlertCircle, ShoppingCart, Info, Clock, Thermomet
 const PrePhase1Transition = ({ onComplete, theme }) => {
     const [isUnlocked, setIsUnlocked] = useState(false);
     const controls = useAnimation();
-    const SLIDER_WIDTH = 360; // px
+    const [containerWidth, setContainerWidth] = useState(0);
+    const sliderRef = React.useRef(null);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (sliderRef.current) {
+                setContainerWidth(sliderRef.current.parentElement.offsetWidth);
+            }
+        };
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    const SLIDER_WIDTH = Math.min(360, containerWidth - 32 || 360); // px
     const HANDLE_WIDTH = 56; // px
     const MAX_SLIDE = SLIDER_WIDTH - HANDLE_WIDTH - 8;
 
@@ -73,7 +87,7 @@ const PrePhase1Transition = ({ onComplete, theme }) => {
     ];
 
     return (
-        <div className={`h-screen bg-coffee-900 text-coffee-100 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden transition-colors duration-500 ${theme}`}>
+        <div className={`min-h-screen bg-coffee-900 text-coffee-100 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-y-auto transition-colors duration-500 ${theme}`}>
 
             {/* Background Decor */}
             <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${theme === 'theme-black-coffee' ? 'opacity-40 mix-blend-screen' : 'opacity-40 mix-blend-color-burn'}`}>
@@ -152,7 +166,7 @@ const PrePhase1Transition = ({ onComplete, theme }) => {
                 </div>
 
                 {/* Slide to Proceed Button */}
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-8 pb-8" ref={sliderRef}>
                     <div
                         className="relative h-16 rounded-full flex items-center shadow-inner overflow-hidden border border-coffee-700/50 bg-coffee-900/80"
                         style={{ width: SLIDER_WIDTH }}
